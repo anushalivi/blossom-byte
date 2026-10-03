@@ -1,0 +1,116 @@
+.dockWrapper {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .dockWrapper {
+    display: block;
+  }
+}
+
+.dock {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(233, 30, 99, 0.15);
+  border-radius: 30px;
+  padding: 10px 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dockTitle {
+  display: none;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dockItem {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #555555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dockItem:hover {
+  background: rgba(233, 30, 99, 0.1);
+  color: #E91E63;
+  transform: scale(1.12);
+}
+
+.dockItemActive {
+  background: linear-gradient(135deg, #E91E63 0%, #D81B60 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.35);
+  transform: scale(1.08);
+}
+
+.tooltip {
+  position: absolute;
+  right: 48px;
+  background: #1c1917;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: var(--font-secondary, sans-serif);
+}
+
+.dockItem:hover .tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.divider {
+  width: 20px;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 2px 0;
+}
+
+.backToTop {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.backToTop:hover {
+  background: #1c1917;
+  color: #ffffff;
+  transform: translateY(-2px);
+}

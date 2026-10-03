@@ -1,10 +1,8 @@
 .main {
   width: 100vw;
+  min-height: 100vh;
   overflow-x: hidden;
-}
-
-.transitionZone {
-  height: 200px;
-  width: 100%;
-  background: linear-gradient(to bottom, #000 0%, var(--color-warm-ivory) 100%);
+  position: relative;
+  background-color: #fffff2;
+  color: #222222;
 }

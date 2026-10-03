@@ -1,21 +1,58 @@
 'use client';
-import { useState } from 'react';
-import { useParams } from 'next/navigation';
+
+import { useState, useEffect } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CATEGORIES } from '@/lib/data';
+import { CATEGORIES, MOCK_PRODUCTS } from '@/lib/data';
+import { NAV_SECTIONS } from '@/lib/navCategories';
 import { useProducts } from '@/context/ProductContext';
+import { filterProductsWithValidImages } from '@/lib/validImages';
 import ProductCard from '@/components/ui/ProductCard';
 import styles from './page.module.css';
 import { motion } from 'framer-motion';
 
 export default function CategoryProductsPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const categorySlug = params.slug;
-  const { products } = useProducts();
+  const initialSub = searchParams.get('sub') || 'all';
+
+  const { products, isLoaded } = useProducts();
   const [sortOption, setSortOption] = useState('Recommended');
+  const [selectedSub, setSelectedSub] = useState(initialSub);
+
+  useEffect(() => {
+    const sub = searchParams.get('sub');
+    if (sub) {
+      setSelectedSub(sub);
+    }
+  }, [searchParams]);
 
   const category = CATEGORIES.find(c => c.id === categorySlug);
-  const categoryProducts = products.filter(p => p.category === categorySlug);
+  const sectionMeta = NAV_SECTIONS.find(s => s.slug === categorySlug);
+  const subcategories = sectionMeta?.subcategories || [];
+  
+  const allAvailable = products && products.length > 0 ? products : MOCK_PRODUCTS;
+  // STRICT RULE: Filter strictly by valid existing images on disk
+  const validAvailable = filterProductsWithValidImages(allAvailable);
+  const uniqueProducts = Array.from(new Map(validAvailable.map(p => [p.id, p])).values());
+  const categoryProducts = uniqueProducts.filter(p => 
+    p.category === categorySlug || 
+    p.categoryId === categorySlug || 
+    p.category_id === categorySlug
+  );
+
+  // Filter by subcategory if one is active
+  const filteredProducts = selectedSub === 'all' 
+    ? categoryProducts 
+    : categoryProducts.filter(p => {
+        const query = selectedSub.replace(/-/g, ' ').toLowerCase();
+        const pName = (p.name || '').toLowerCase();
+        const pDesc = (p.shortDesc || p.longDesc || '').toLowerCase();
+        return pName.includes(query) || pDesc.includes(query) || query.split(' ').some(w => w.length > 3 && pName.includes(w));
+      });
+
+  const displayProducts = filteredProducts.length > 0 ? filteredProducts : categoryProducts;
 
   if (!category) {
     return (
@@ -30,7 +67,7 @@ export default function CategoryProductsPage() {
     );
   }
 
-  const sortedProducts = [...categoryProducts].sort((a, b) => {
+  const sortedProducts = [...displayProducts].sort((a, b) => {
     switch (sortOption) {
       case 'Price: Low to High': return a.price - b.price;
       case 'Price: High to Low': return b.price - a.price;
@@ -41,7 +78,7 @@ export default function CategoryProductsPage() {
 
   return (
     <main className={styles.main}>
-      <section className={styles.hero} style={{ backgroundImage: `linear-gradient(to right, rgba(255,255,242,0.9), rgba(255,255,242,0.7)), url(${category.image})` }}>
+      <section className={styles.hero} style={{ backgroundImage: `linear-gradient(to right, rgba(255,255,242,0.92), rgba(255,255,242,0.85))` }}>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,11 +86,41 @@ export default function CategoryProductsPage() {
           className={styles.heroContent}
         >
           <h1 className={styles.title}>{category.name}</h1>
-          <p className={styles.subtitle}>Discover our exquisite collection of {category.name.toLowerCase()}, hand-selected for ultimate luxury.</p>
+          <p className={styles.subtitle}>
+            {sectionMeta?.tagline || `Discover our exquisite collection of ${category.name.toLowerCase()}, hand-selected for ultimate luxury.`}
+          </p>
         </motion.div>
       </section>
 
       <section className={styles.shopSection}>
+        {/* 7 Subcategories Quick Filter Pills */}
+        {subcategories.length > 0 && (
+          <div className={styles.subcatBarWrapper}>
+            <div className={styles.subcatBarTitle}>Browse Sub-Categories (7 Collections)</div>
+            <div className={styles.subcatPillsList}>
+              <button 
+                type="button"
+                className={`${styles.subcatPill} ${selectedSub === 'all' ? styles.subcatPillActive : ''}`}
+                onClick={() => setSelectedSub('all')}
+              >
+                <span>✨ All {category.name}</span>
+              </button>
+
+              {subcategories.map((subcat) => (
+                <button 
+                  key={subcat.id}
+                  type="button"
+                  className={`${styles.subcatPill} ${selectedSub === subcat.slug ? styles.subcatPillActive : ''}`}
+                  onClick={() => setSelectedSub(subcat.slug)}
+                >
+                  <span className={styles.subcatPillIcon}>{subcat.icon}</span>
+                  <span>{subcat.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className={styles.filters}>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>Sort by:</span>
@@ -64,11 +131,11 @@ export default function CategoryProductsPage() {
               <option>Newest Arrivals</option>
             </select>
           </div>
-          <p className={styles.resultsCount}>{categoryProducts.length} Products</p>
+          <p className={styles.resultsCount}>{sortedProducts.length} Products Found</p>
         </div>
 
         <div className={styles.grid}>
-          {categoryProducts.length === 0 ? (
+          {sortedProducts.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', padding: '64px 20px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', margin: '40px 0' }}>
                <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>No products found</h2>
                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '32px' }}>We are currently updating our {category.name.toLowerCase()} collection. Please check back later.</p>

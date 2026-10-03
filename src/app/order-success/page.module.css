@@ -1,24 +1,24 @@
 .main {
   min-height: 100vh;
   background-color: var(--color-warm-ivory);
-  padding: 160px 0 var(--space-32);
+  padding: 130px 0 var(--space-32);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 680px;
   width: 100%;
   padding: 0 var(--space-6);
 }
 
 .card {
-  background: var(--color-surface-glass-white);
-  padding: var(--space-12) var(--space-10);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: var(--shadow-sm);
+  background: #FFFFFF;
+  padding: var(--space-10) var(--space-10);
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.05);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -26,93 +26,331 @@
 }
 
 .iconWrapper {
-  width: 80px;
-  height: 80px;
-  background: rgba(109, 190, 69, 0.1);
-  color: var(--color-secondary);
+  width: 76px;
+  height: 76px;
+  background: rgba(46, 125, 50, 0.12);
+  color: #2E7D32;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-4);
 }
 
 .icon {
-  stroke-width: 3;
+  stroke-width: 2.5;
+}
+
+.placedBadge {
+  display: inline-block;
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: var(--space-3);
+  border: 1px solid rgba(46, 125, 50, 0.2);
 }
 
 .title {
   font-family: var(--font-primary);
-  font-size: var(--text-4xl);
-  font-weight: 300;
-  margin-bottom: var(--space-4);
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 500;
+  color: #1A1A1A;
+  margin-bottom: var(--space-2);
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   font-family: var(--font-secondary);
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--space-8);
-  max-width: 400px;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: var(--space-6);
+  max-width: 480px;
 }
 
+/* Doorstep COD & UPI Notice Card */
+.doorstepCard {
+  width: 100%;
+  background: #F9FBE7;
+  border: 1.5px solid #C5E1A5;
+  border-radius: var(--radius-xl);
+  padding: 16px 20px;
+  margin-bottom: var(--space-6);
+  text-align: left;
+}
+
+.doorstepHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(139, 195, 74, 0.4);
+}
+
+.doorstepBadgeWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doorstepBadgeText {
+  font-weight: 700;
+  font-size: 14px;
+  color: #2E7D32;
+}
+
+.upiTag {
+  background: #2E7D32;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+.doorstepNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.doorstepNoticeIcon {
+  color: #2E7D32;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.doorstepNoticeText strong {
+  display: block;
+  font-size: 13.5px;
+  color: #1B5E20;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.doorstepNoticeText p {
+  font-size: 13px;
+  color: #33691E;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Order Details Table */
 .orderDetails {
   width: 100%;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  border-bottom: 1px solid rgba(0,0,0,0.1);
-  padding: var(--space-6) 0;
-  margin-bottom: var(--space-8);
+  background: #FAFAFA;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: var(--radius-xl);
+  padding: 18px 20px;
+  margin-bottom: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 12px;
 }
 
 .detailRow {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-family: var(--font-secondary);
-  font-size: var(--text-sm);
+  font-size: 13.5px;
 }
 
 .detailRow span {
-  color: var(--color-text-secondary);
+  color: #777;
 }
 
 .detailRow strong {
-  color: var(--color-text-primary);
-  font-weight: 500;
+  color: #1A1A1A;
+  font-weight: 600;
 }
 
-.tracking {
+.orderIdGroup {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  background: rgba(0,0,0,0.02);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-10);
-  text-align: left;
+  align-items: center;
+  gap: 8px;
 }
 
-.trackingIcon {
-  color: var(--color-text-primary);
-  flex-shrink: 0;
-  margin-top: 2px;
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.15);
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s;
 }
 
-.tracking p {
-  font-family: var(--font-secondary);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin: 0;
+.copyBtn:hover {
+  background: #F0F0F0;
+  color: #111;
+}
+
+/* Mini Tracker */
+.miniTracker {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: var(--radius-xl);
+  padding: 16px 20px;
+  margin-bottom: var(--space-6);
+}
+
+.trackerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.trackerTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2E7D32;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2E7D32;
+  box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+  animation: pulse 1.6s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(46, 125, 50, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+  }
+}
+
+.trackerSteps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.trackStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #999;
+  z-index: 2;
+}
+
+.trackStep.completed {
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+.trackStep.inProgress {
+  color: #E91E63;
+  font-weight: 700;
+}
+
+.stepBubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #F0F0F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border: 2px solid #E0E0E0;
+}
+
+.trackStep.completed .stepBubble {
+  background: #2E7D32;
+  color: #FFFFFF;
+  border-color: #2E7D32;
+}
+
+.trackStep.inProgress .stepBubble {
+  background: #FCE4EC;
+  border-color: #E91E63;
+}
+
+.trackConnector {
+  flex: 1;
+  height: 2px;
+  background: #E0E0E0;
+  margin: -16px 6px 0;
+}
+
+.trackConnectorActive {
+  flex: 1;
+  height: 2px;
+  background: #2E7D32;
+  margin: -16px 6px 0;
+}
+
+/* Primary Action Track Button */
+.primaryActionWrap {
+  width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+.trackBtnMain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 24px;
+  background: #111111;
+  color: #FFFFFF;
+  border-radius: var(--radius-xl);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  transition: all 0.25s ease;
+}
+
+.trackBtnMain:hover {
+  background: #E91E63;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(233, 30, 99, 0.25);
 }
 
 .actions {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-3);
   width: 100%;
 }
 
@@ -126,6 +364,9 @@
 
 @media (max-width: 640px) {
   .actions {
-    flex-direction: column-reverse;
+    flex-direction: column;
+  }
+  .trackStep span {
+    display: none;
   }
 }

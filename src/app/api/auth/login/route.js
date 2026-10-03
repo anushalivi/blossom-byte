@@ -4,46 +4,57 @@ import User from '@/lib/models/User';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = 'blossom_secret_key_123';
+const JWT_SECRET = process.env.JWT_SECRET || 'blossom_secret_key_123';
 
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    // Direct master admin check
+    const isMasterAdmin = (normalizedEmail === 'anusha6363@gmail.com' || normalizedEmail === 'admin') && password === '@Anusha2026';
+
     try {
       await connectDB();
     } catch (e) {
-      if (e.message.includes('Database is not configured')) {
-        if (email === 'admin@gmail.com' && password === 'admin@123') {
-           const token = jwt.sign({ userId: 'offline-admin', isAdmin: true }, JWT_SECRET, { expiresIn: '7d' });
-           const userData = { id: 'offline-admin', name: 'Offline Admin', email: 'admin@gmail.com', isAdmin: true, tier: 'Platinum' };
-           return NextResponse.json({ success: true, token, user: userData });
-        }
-        return NextResponse.json({ success: false, error: 'Database offline. Use admin@gmail.com / admin@123' }, { status: 401 });
+      if (isMasterAdmin) {
+        const token = jwt.sign({ userId: 'admin-anusha-01', isAdmin: true }, JWT_SECRET, { expiresIn: '7d' });
+        const userData = { id: 'admin-anusha-01', name: 'Anusha', email: 'anusha6363@gmail.com', isAdmin: true, tier: 'Platinum' };
+        return NextResponse.json({ success: true, token, user: userData });
       }
-      throw e;
+      return NextResponse.json({ success: false, error: 'Database connecting. Admin credentials: anusha6363@gmail.com / @Anusha2026' }, { status: 401 });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
+      if (isMasterAdmin) {
+        const token = jwt.sign({ userId: 'admin-anusha-01', isAdmin: true }, JWT_SECRET, { expiresIn: '7d' });
+        const userData = { id: 'admin-anusha-01', name: 'Anusha', email: 'anusha6363@gmail.com', isAdmin: true, tier: 'Platinum' };
+        return NextResponse.json({ success: true, token, user: userData });
+      }
       return NextResponse.json({ success: false, error: 'Invalid email or password' }, { status: 401 });
     }
 
     let isMatch = false;
     if (user.password === password) {
-      isMatch = true; // For the seeded admin account (plaintext)
+      isMatch = true;
     } else {
       isMatch = await bcrypt.compare(password, user.password);
+    }
+
+    if (!isMatch && isMasterAdmin) {
+      isMatch = true;
     }
 
     if (!isMatch) {
       return NextResponse.json({ success: false, error: 'Invalid email or password' }, { status: 401 });
     }
 
-    const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id || user.id, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: '7d' });
 
     const userData = {
-      id: user._id,
+      id: user._id || user.id,
       name: user.name,
       email: user.email,
       phone: user.phone,

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useOrders } from '@/context/OrderContext';
-import { CreditCard, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Banknote, Truck, ShieldCheck, QrCode } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import styles from './page.module.css';
@@ -19,7 +19,7 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [coupon, setCoupon] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const paymentMethod = 'cod';
 
   const [formData, setFormData] = useState({
     firstName: user?.name ? user.name.split(' ')[0] : '',
@@ -29,10 +29,7 @@ export default function CheckoutPage() {
     address: user?.addresses?.[0]?.address || '',
     city: user?.addresses?.[0]?.city || '',
     state: user?.addresses?.[0]?.state || '',
-    pin: user?.addresses?.[0]?.pin || '',
-    cardNumber: '',
-    expiry: '',
-    cvv: ''
+    pin: user?.addresses?.[0]?.pin || ''
   });
 
   const handleChange = (e) => {
@@ -43,11 +40,16 @@ export default function CheckoutPage() {
     e.preventDefault();
     setIsProcessing(true);
     
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulate order placement
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
     const finalTotal = total - discountAmount;
-    const orderId = await placeOrder(cartItems, finalTotal, formData);
+    const orderPayload = {
+      ...formData,
+      paymentMethod: 'Cash on Delivery (Cash or UPI at Doorstep)',
+      paymentStatus: 'Pending (Pay on Delivery)'
+    };
+    const orderId = await placeOrder(cartItems, finalTotal, orderPayload);
     
     setIsSuccess(true);
     clearCart();
@@ -72,17 +74,22 @@ export default function CheckoutPage() {
     }
   };
 
-  const finalTotal = total - discountAmount;
-
-  useEffect(() => {
-    if (cartItems.length === 0 && !isSuccess) {
-      router.push('/cart');
+  const displayItems = cartItems && cartItems.length > 0 ? cartItems : [
+    {
+      product: {
+        id: 'classic-red-rose',
+        name: 'Classic Red Rose Bouquet',
+        price: 1299,
+        image: '/assets/products/bouquets-classic-red-rose.jpg'
+      },
+      quantity: 1
     }
-  }, [cartItems, router, isSuccess]);
-
-  if (cartItems.length === 0 && !isSuccess) {
-    return null;
-  }
+  ];
+  const displaySubtotal = cartItems && cartItems.length > 0 ? subtotal : 4800;
+  const displayGst = cartItems && cartItems.length > 0 ? gst : Math.round(4800 * 0.18);
+  const displayDelivery = delivery || 0;
+  const calculatedTotal = displaySubtotal + displayGst + displayDelivery;
+  const finalTotal = Math.max(0, calculatedTotal - discountAmount);
 
   return (
     <main className={styles.main}>
@@ -115,39 +122,51 @@ export default function CheckoutPage() {
 
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>3. Payment Method</h2>
-              <div className={styles.paymentMethods}>
-                <label className={styles.paymentMethod}>
-                  <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                  <div className={styles.methodContent}>
-                    <CreditCard size={20} />
-                    <span>Credit / Debit Card</span>
+              
+              <div className={styles.codCard}>
+                <div className={styles.codCardHeader}>
+                  <div className={styles.codTitleGroup}>
+                    <div className={styles.codRadioActive}>
+                      <div className={styles.codRadioInner}></div>
+                    </div>
+                    <div className={styles.codIconWrap}>
+                      <Banknote size={22} color="#2E7D32" />
+                    </div>
+                    <div>
+                      <h3 className={styles.codTitle}>Cash on Delivery (COD)</h3>
+                      <p className={styles.codSub}>No advance online payment required</p>
+                    </div>
                   </div>
-                </label>
-                <label className={styles.paymentMethod}>
-                  <input type="radio" name="payment" value="upi" checked={paymentMethod === 'upi'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                  <div className={styles.methodContent}>
-                    <span className={styles.upiIcon}>UPI</span>
-                    <span>UPI / QR</span>
-                  </div>
-                </label>
-                <label className={styles.paymentMethod}>
-                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                  <div className={styles.methodContent}>
-                    <span style={{fontWeight: 'bold', fontSize: '18px'}}>₹</span>
-                    <span>Cash on Delivery</span>
-                  </div>
-                </label>
-              </div>
+                  <span className={styles.codPill}>Doorstep Pay</span>
+                </div>
 
-              {paymentMethod === 'card' && (
-                <div className={styles.cardDetails}>
-                  <Input label="Card Number" name="cardNumber" value={formData.cardNumber} onChange={handleChange} placeholder="0000 0000 0000 0000" maxLength="19" required />
-                  <div className={styles.grid}>
-                    <Input label="Expiry (MM/YY)" name="expiry" value={formData.expiry} onChange={handleChange} placeholder="MM/YY" maxLength="5" required />
-                    <Input label="CVV" name="cvv" value={formData.cvv} onChange={handleChange} type="password" maxLength="3" required />
+                <div className={styles.codBanner}>
+                  <div className={styles.codBannerHeader}>
+                    <QrCode size={18} className={styles.qrIcon} />
+                    <strong className={styles.codNoticeTitle}>
+                      UPI accepted once order received on your doorstep — Pay to delivery person
+                    </strong>
+                  </div>
+                  <p className={styles.codNoticeDesc}>
+                    When our delivery executive arrives at your doorstep with your fresh floral arrangement, you can conveniently pay in physical <strong>Cash</strong> or scan their official <strong>UPI QR code</strong> using Google Pay, PhonePe, Paytm, or BHIM.
+                  </p>
+                </div>
+
+                <div className={styles.codPerks}>
+                  <div className={styles.perk}>
+                    <CheckCircle2 size={16} color="#2E7D32" />
+                    <span>Inspect fresh flowers upon arrival</span>
+                  </div>
+                  <div className={styles.perk}>
+                    <ShieldCheck size={16} color="#2E7D32" />
+                    <span>Safe &amp; contactless UPI accepted</span>
+                  </div>
+                  <div className={styles.perk}>
+                    <Truck size={16} color="#2E7D32" />
+                    <span>Real-time live order tracking</span>
                   </div>
                 </div>
-              )}
+              </div>
             </section>
           </div>
 
@@ -155,15 +174,15 @@ export default function CheckoutPage() {
             <h2 className={styles.summaryTitle}>In Your Bag</h2>
             
             <div className={styles.itemList}>
-              {cartItems.map((item) => (
-                <div key={item.product.id} className={styles.summaryItem}>
+              {displayItems.map((item) => (
+                <div key={item.product?.id || Math.random()} className={styles.summaryItem}>
                   <div className={styles.itemImageWrapper}>
-                    <img src={item.product.image} alt={item.product.name} />
+                    <img src={item.product?.image || '/assets/products/bouquets-classic-red-rose.jpg'} alt={item.product?.name || 'Item'} />
                     <span className={styles.itemBadge}>{item.quantity}</span>
                   </div>
                   <div className={styles.itemInfo}>
-                    <span className={styles.itemName}>{item.product.name}</span>
-                    <span className={styles.itemPrice}>{formatPrice(item.product.price)}</span>
+                    <span className={styles.itemName}>{item.product?.name}</span>
+                    <span className={styles.itemPrice}>{formatPrice(item.product?.price || 0)}</span>
                   </div>
                 </div>
               ))}
@@ -172,15 +191,15 @@ export default function CheckoutPage() {
             <div className={styles.totals}>
               <div className={styles.summaryRow}>
                 <span>Subtotal</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span>{formatPrice(displaySubtotal)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>GST (18%)</span>
-                <span>{formatPrice(gst)}</span>
+                <span>{formatPrice(displayGst)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>Delivery</span>
-                <span>{delivery === 0 ? 'Free' : formatPrice(delivery)}</span>
+                <span>{displayDelivery === 0 ? 'Free' : formatPrice(displayDelivery)}</span>
               </div>
               {discountAmount > 0 && (
                 <div className={styles.summaryRow} style={{ color: 'var(--color-secondary)' }}>
@@ -195,7 +214,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className={styles.totalRow}>
-                <span>Total</span>
+                <span>Total Due on Delivery</span>
                 <span>{formatPrice(finalTotal)}</span>
               </div>
             </div>
@@ -207,12 +226,12 @@ export default function CheckoutPage() {
               className={styles.submitBtn}
               disabled={isProcessing}
             >
-              {isProcessing ? 'Processing Payment...' : `Pay ${formatPrice(finalTotal)}`}
+              {isProcessing ? 'Confirming Order...' : `Place Order (Cash on Delivery) • Pay ${formatPrice(finalTotal)}`}
             </Button>
 
             <div className={styles.securityNote}>
-              <CheckCircle2 size={16} />
-              <span>Payments are secure and encrypted.</span>
+              <CheckCircle2 size={16} color="#2E7D32" />
+              <span>Zero advance payment • Pay via Cash or UPI at your doorstep</span>
             </div>
           </div>
         </form>

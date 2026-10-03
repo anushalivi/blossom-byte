@@ -1,16 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag } from 'lucide-react';
 import Badge from './Badge';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { hasValidProductImage } from '@/lib/validImages';
 import styles from './ProductCard.module.css';
 
 export default function ProductCard({ product, delay = 0 }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const { addToCart, cartItems } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+
+  // STRICT RULE: If product has no valid image or image fails to load, do not render card
+  if (!product || !hasValidProductImage(product) || imageFailed) {
+    return null;
+  }
 
   const inCart = cartItems ? cartItems.some(item => item.product.id === product.id) : false;
 
@@ -27,16 +35,16 @@ export default function ProductCard({ product, delay = 0 }) {
     : null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-10%" }}
-      transition={{ duration: 0.8, delay: delay, ease: [0.16, 1, 0.3, 1] }}
-      className={styles.card}
-    >
+    <div className={styles.card}>
       <Link href={`/products/${product.slug}`} className={styles.imageLink}>
         <div className={styles.imageWrapper}>
-          <img src={product.image} alt={product.name} className={styles.image} loading="lazy" />
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className={styles.image} 
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+          />
           
           <div className={styles.badges}>
             {product.discount > 0 && <Badge variant="primary">-{product.discount}%</Badge>}
@@ -86,7 +94,20 @@ export default function ProductCard({ product, delay = 0 }) {
             <span className={styles.price}>{formatPrice(product.price)}</span>
           )}
         </div>
+
+        <button
+          type="button"
+          className={`${styles.addToCartBtn} ${inCart ? styles.addToCartBtnInCart : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            addToCart(product, 1);
+          }}
+          aria-label={`Add ${product.name} to cart`}
+        >
+          <ShoppingBag size={16} />
+          <span>{inCart ? 'Added to Cart ✓' : 'Add to Cart'}</span>
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -32,18 +32,21 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    // Hardcoded offline admin fallback
-    if (email === 'admin' && password === 'admin@123') {
+    const normalized = (email || '').trim().toLowerCase();
+    // Offline admin fallback for Anusha
+    if ((normalized === 'anusha6363@gmail.com' || normalized === 'admin') && password === '@Anusha2026') {
       const mockAdmin = {
-        _id: 'local-admin-id',
-        name: 'Super Admin',
-        email: 'admin',
+        _id: 'admin-anusha-01',
+        id: 'admin-anusha-01',
+        name: 'Anusha (Admin)',
+        email: 'anusha6363@gmail.com',
         isAdmin: true,
-        isDefaultAdmin: true
+        isDefaultAdmin: true,
+        tier: 'Platinum'
       };
       setUser(mockAdmin);
       localStorage.setItem('blossom_user', JSON.stringify(mockAdmin));
-      localStorage.setItem('blossom_token', 'local-offline-token');
+      localStorage.setItem('blossom_token', 'local-admin-token');
       return mockAdmin;
     }
 

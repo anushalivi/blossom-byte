@@ -1,41 +1,60 @@
-import mongoose from 'mongoose';
-import { getConfig } from './config';
+import { Pool } from 'pg';
+import { getConfig } from './config.js';
 
-// Global cache to prevent multiple connections during Next.js hot reloads
-let cached = global.mongoose;
+const NEON_DEFAULT_URL = 'postgresql://neondb_owner:npg_cEqrFLahQ9e0@ep-bitter-boat-b43kti0i-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// Global cache for connection pool across Next.js reloads
+let cachedPool = global.pgPool;
+
+if (!cachedPool) {
+  cachedPool = global.pgPool = null;
 }
 
-export async function connectDB() {
-  if (cached.conn) {
-    return cached.conn;
+export function getPool() {
+  if (cachedPool) {
+    return cachedPool;
   }
 
   const config = getConfig();
-  if (!config || !config.dbUri) {
-    throw new Error('Database is not configured. Please run the setup wizard.');
-  }
+  const connectionString = (config && config.dbUri && config.dbUri.startsWith('postgres'))
+    ? config.dbUri
+    : (process.env.DATABASE_URL || process.env.POSTGRES_URL || NEON_DEFAULT_URL);
 
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-      dbName: config.dbName || 'blossom-byte'
-    };
+  cachedPool = global.pgPool = new Pool({
+    connectionString,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
 
-    cached.promise = mongoose.connect(config.dbUri, opts).then((mongoose) => {
-      console.log('MongoDB connected successfully');
-      return mongoose;
-    });
-  }
+  cachedPool.on('error', (err) => {
+    console.error('Unexpected error on idle Neon PG client', err);
+  });
 
+  return cachedPool;
+}
+
+export async function connectDB() {
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
+    const pool = getPool();
+    // Test simple connectivity query
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT 1');
+      return pool;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('Neon PostgreSQL connection error:', err.message);
+    throw err;
   }
+}
 
-  return cached.conn;
+export async function query(text, params) {
+  const pool = getPool();
+  return pool.query(text, params);
 }

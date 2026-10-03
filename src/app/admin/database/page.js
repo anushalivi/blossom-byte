@@ -88,7 +88,7 @@ export default function DatabaseManagementPage() {
       <header className={styles.header}>
         <div>
           <h1 className={styles.pageTitle}>Database Management</h1>
-          <p className={styles.pageSubtitle}>Hot-swap your MongoDB cluster securely.</p>
+          <p className={styles.pageSubtitle}>Hot-swap or manage your Neon PostgreSQL / SQL cluster securely.</p>
         </div>
       </header>
 
@@ -98,7 +98,7 @@ export default function DatabaseManagementPage() {
         </h3>
         <div style={{ background: 'rgba(0,0,0,0.02)', padding: '16px', borderRadius: '8px' }}>
           <p style={{ margin: '0 0 8px' }}><strong>URI:</strong> <span style={{ fontFamily: 'monospace', opacity: 0.8 }}>{currentConfig.uri}</span></p>
-          <p style={{ margin: 0 }}><strong>Database:</strong> {currentConfig.dbName || 'blossom-byte'}</p>
+          <p style={{ margin: 0 }}><strong>Database:</strong> {currentConfig.dbName || 'neondb'}</p>
         </div>
       </GlassCard>
 
@@ -112,8 +112,8 @@ export default function DatabaseManagementPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <Input 
-            label="New MongoDB Connection URI" 
-            placeholder="mongodb+srv://..."
+            label="Database Connection URI (PostgreSQL or MongoDB)" 
+            placeholder="postgresql://... or mongodb+srv://..."
             value={newConfig.uri} 
             onChange={(e) => { setNewConfig({...newConfig, uri: e.target.value}); setDbTested(false); }} 
           />

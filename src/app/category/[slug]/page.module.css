@@ -1,73 +1,156 @@
 .main {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   background-color: var(--color-warm-ivory);
+  box-sizing: border-box;
 }
 
 .hero {
-  padding: 180px var(--space-6) var(--space-20);
+  padding: 160px 24px 60px;
   background-size: cover;
   background-position: center;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .heroContent {
   max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .title {
   font-family: var(--font-primary);
-  font-size: var(--text-6xl);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 300;
-  margin-bottom: var(--space-4);
+  margin-bottom: 12px;
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .subtitle {
   font-family: var(--font-secondary);
-  font-size: var(--text-lg);
+  font-size: clamp(0.95rem, 2vw, 1.125rem);
   color: var(--color-text-secondary);
   line-height: 1.6;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 .shopSection {
-  padding: var(--space-10) var(--space-6) var(--space-32);
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1320px;
   margin: 0 auto;
+  padding: 40px 24px 100px;
+  box-sizing: border-box;
+}
+
+/* 7 Subcategories Quick Filter Bar */
+.subcatBarWrapper {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 32px;
+  padding: 8px 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.subcatBarTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #78716c;
+  margin-bottom: 12px;
+}
+
+.subcatPillsList {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  max-width: 100%;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}
+
+.subcatPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+  font-weight: 600;
+  color: #44403c;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.subcatPill:hover {
+  border-color: #E91E63;
+  color: #E91E63;
+  background: rgba(233, 30, 99, 0.04);
+}
+
+.subcatPillActive {
+  background: #E91E63;
+  color: #ffffff !important;
+  border-color: #E91E63;
+  box-shadow: 0 4px 14px rgba(233, 30, 99, 0.25);
+}
+
+.subcatPillIcon {
+  font-size: 14px;
 }
 
 .filters {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-8);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .filterGroup {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: 12px;
 }
 
 .filterLabel {
   font-family: var(--font-secondary);
-  font-size: var(--text-sm);
+  font-size: 14px;
   color: var(--color-text-secondary);
 }
 
 .select {
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(0,0,0,0.1);
-  background: var(--color-surface-glass-white);
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
   font-family: var(--font-secondary);
-  font-size: var(--text-sm);
+  font-size: 14px;
   color: var(--color-text-primary);
   outline: none;
   cursor: pointer;
@@ -75,36 +158,67 @@
 
 .resultsCount {
   font-family: var(--font-secondary);
-  font-size: var(--text-sm);
+  font-size: 14px;
   color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
+/* ========================================================
+   RESPONSIVE PRODUCT GRID: FITS PERFECTLY INSIDE VIEWPORT
+   ======================================================== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.notFound {
-  padding: 200px 20px;
-  text-align: center;
-  font-family: var(--font-primary);
-  font-size: var(--text-2xl);
-  color: var(--color-text-secondary);
+/* Tablet & small desktops: 3 columns */
+@media (max-width: 1120px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
 }
 
-@media (max-width: 768px) {
-  .title {
-    font-size: var(--text-4xl);
+/* Small tablets / large phones: 2 columns */
+@media (max-width: 780px) {
+  .hero {
+    padding: 130px 16px 40px;
+  }
+  
+  .shopSection {
+    padding: 24px 16px 64px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+/* Mobile phones: 1 column, completely prevents horizontal scroll */
+@media (max-width: 480px) {
+  .shopSection {
+    padding: 20px 14px 48px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
   
   .filters {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-4);
   }
-  
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  }
+}
+
+.notFound {
+  padding: 120px 20px;
+  text-align: center;
+  font-family: var(--font-primary);
+  font-size: 24px;
+  color: var(--color-text-secondary);
 }

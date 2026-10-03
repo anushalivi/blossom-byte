@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/db';
 import Product from '@/lib/models/Product';
 import Category from '@/lib/models/Category';
 import { MOCK_PRODUCTS } from '@/lib/data';
+import { filterProductsWithValidImages } from '@/lib/validImages';
 
 export async function GET() {
   try {
@@ -26,9 +27,12 @@ export async function GET() {
       sku: p.sku
     }));
 
-    return NextResponse.json({ success: true, products: formatted });
+    const validOnly = filterProductsWithValidImages(formatted);
+    return NextResponse.json({ success: true, products: validOnly });
   } catch (error) {
-    const mockWithFeatured = MOCK_PRODUCTS.map(p => ({ ...p, isFeatured: p.featured }));
+    const mockWithFeatured = filterProductsWithValidImages(
+      MOCK_PRODUCTS.map(p => ({ ...p, isFeatured: p.featured }))
+    );
     return NextResponse.json({ success: true, isOffline: true, products: mockWithFeatured, error: error.message });
   }
 }

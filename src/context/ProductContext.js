@@ -2,45 +2,47 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { MOCK_PRODUCTS } from '@/lib/data';
+import { filterProductsWithValidImages } from '@/lib/validImages';
 
 const ProductContext = createContext();
 
 export function ProductProvider({ children }) {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => filterProductsWithValidImages(
+    MOCK_PRODUCTS.map(p => ({ ...p, isFeatured: p.featured || p.isFeatured }))
+  ));
   const [isLoaded, setIsLoaded] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    let localProducts = [];
-    const stored = localStorage.getItem('blossom_offline_products');
-    if (stored) {
-      localProducts = JSON.parse(stored);
-    } else {
-      localProducts = MOCK_PRODUCTS.map(p => ({ ...p, isFeatured: p.featured || p.isFeatured }));
-      localStorage.setItem('blossom_offline_products', JSON.stringify(localProducts));
+    try {
+      // Purge any stale products in localStorage from older sessions
+      localStorage.removeItem('blossom_offline_products');
+    } catch (e) {
+      // ignore in environments without localStorage
     }
 
-    // Fetch live products from MongoDB
+    const validMock = filterProductsWithValidImages(
+      MOCK_PRODUCTS.map(p => ({ ...p, isFeatured: p.featured || p.isFeatured }))
+    );
+    setProducts(validMock);
+
+    // Fetch live products
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          if (data.isOffline) {
-            setIsOffline(true);
-            setProducts(localProducts);
-          } else {
-            setIsOffline(false);
-            setProducts([...localProducts, ...data.products]);
-          }
+        if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
+          const validLive = filterProductsWithValidImages(data.products);
+          setProducts(validLive.length > 0 ? validLive : validMock);
+          setIsOffline(Boolean(data.isOffline));
         } else {
+          setProducts(validMock);
           setIsOffline(true);
-          setProducts(localProducts);
         }
         setIsLoaded(true);
       })
       .catch(err => {
+        setProducts(validMock);
         setIsOffline(true);
-        setProducts(localProducts);
         setIsLoaded(true);
       });
   }, []);
